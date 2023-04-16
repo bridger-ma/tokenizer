@@ -15,9 +15,7 @@ async fn main() -> Result<()> {
     let router = Router::new()
         .nest("/api", app_routes)
         .merge(SwaggerUi::new("/swagger-ui").url("/api/openapi.json", ApiDoc::openapi()));
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-    println!("--> Listening on http://{}", addr);
-    axum::Server::bind(&addr)
+    axum::Server::bind(&"0.0.0.0:8080".parse().unwrap())
         .serve(router.into_make_service())
         .await
         .unwrap();

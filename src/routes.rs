@@ -1,5 +1,5 @@
 use axum::{
-    extract::State,
+    extract::{Path, State},
     routing::{get, post},
     Json, Router,
 };
@@ -83,7 +83,7 @@ pub async fn get_all_tokens(
 
 pub async fn get_token(
     State(token_controller): State<TokenController>,
-    email: String,
+    Path(email): Path<String>,
 ) -> Result<Json<Token>> {
     let token = token_controller.get_token(&email).await?;
     Ok(Json(token))
