@@ -37,7 +37,7 @@ impl TokenController {
                 message: e.to_string(),
             })?;
 
-        Ok(token.clone())
+        Ok(token)
     }
 
     pub async fn set_token(&self, email: &str, token: Token) -> Result<Token> {
@@ -61,8 +61,7 @@ impl TokenController {
     pub async fn delete_token(&self, email: &str) -> Result<()> {
         let mut conn = self.redis.lock().await;
 
-        let _: () = conn
-            .del(email)
+        conn.del(email)
             .await
             .map_err(|e| Error::FailToDeleteToken {
                 email: email.to_string(),
@@ -129,7 +128,15 @@ impl TokenController {
                 });
             }
         }; // await the response
-        let content = response.text().await.unwrap();
+        let content = match response.text().await {
+            Ok(content) => content,
+            Err(err) => {
+                println!("Error: {:?}", err);
+                return Err(Error::FailToFetchToken {
+                    message: err.to_string(),
+                });
+            }
+        };
         let token_response: Token = match serde_json::from_str(&content) {
             Ok(token_response) => token_response,
             Err(err) => {
@@ -278,7 +285,15 @@ impl TokenController {
                 message: e.to_string(),
             })?;
 
-        let content = res.text().await.unwrap();
+        let content = match res.text().await {
+            Ok(content) => content,
+            Err(err) => {
+                println!("Error: {:?}", err);
+                return Err(Error::FailToFetchUser {
+                    message: err.to_string(),
+                });
+            }
+        };
         let user: User = match serde_json::from_str(&content) {
             Ok(token_response) => token_response,
             Err(err) => {
