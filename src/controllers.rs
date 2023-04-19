@@ -182,8 +182,6 @@ impl TokenController {
                 Err(e) => {
                     fail += 1;
                     println!("Can Not Update Token: {}", email);
-                    self.delete_token(&email).await?;
-                    println!("Token Deleted: {}", email);
                     println!("Error: {:?}", e);
                 }
             }
