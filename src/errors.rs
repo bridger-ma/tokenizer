@@ -3,14 +3,30 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
+use crate::models::Token;
+
 pub type Result<T> = core::result::Result<T, Error>;
 #[derive(Debug)]
 pub enum Error {
+    // region: Email Error
+    FailToParseRedisUri {
+        uri: String,
+        message: String,
+    },
+    // endregion: Email Error
     EmailNotFound,
     TokenAlreadyExists,
     FailToDeleteEmailNotFound {
         email: String,
     },
+    FailToGetAllEmails {
+        message: String,
+    },
+    // region: User Error
+    FailToFetchUser {
+        message: String,
+    },
+    // endregion: User Error
     // region: Token Error
     FailToFetchToken {
         message: String,
@@ -20,9 +36,27 @@ pub enum Error {
         email: String,
         error: String,
     },
-    TokenNotFound {
+    FailToGetToken {
         email: String,
-    }, // endregion: Token Error
+        message: String,
+    },
+    FailToParseTokenFromString {
+        token: String,
+        message: String,
+    },
+    FailToParseTokenToString {
+        token: Token,
+        message: String,
+    },
+    FailToSetToken {
+        email: String,
+        message: String,
+    },
+    FailToDeleteToken {
+        email: String,
+        message: String,
+    },
+    // endregion: Token Error
 }
 
 impl std::fmt::Display for Error {

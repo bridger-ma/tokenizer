@@ -19,43 +19,13 @@ pub async fn add_token(
     State(token_controller): State<TokenController>,
     Json(payload): Json<AddTokenPayload>,
 ) -> Result<Json<Token>> {
-    match token_controller.get_token(&payload.email).await {
-        Ok(token) => return Ok(Json(token)),
-        Err(crate::errors::Error::TokenNotFound { email: _ }) => {}
-        Err(e) => return Err(e),
-    }
     let token = token_controller.fetch_token(&payload.refresh_token).await?;
+    let user = token_controller.fetch_user(&token.access_token).await?;
     token_controller
-        .set_token(&payload.email, token.clone())
+        .set_token(&user.user_principal_name, token.clone())
         .await?;
-    let refresh_token = token.refresh_token.clone();
-    let email = payload.email.clone();
-    let returned_token = token.clone();
-    tokio::spawn(async move {
-        loop {
-            tokio::time::sleep(std::time::Duration::from_secs(token.expires_in - 100)).await;
-            println!("Refreshing token for {}", email);
-            let token = token_controller.fetch_token(&refresh_token).await;
-            match token {
-                Ok(token) => {
-                    match token_controller.set_token(&email, token).await {
-                        Ok(_) => {}
-                        Err(e) => {
-                            println!("Error: {}", e);
-                            token_controller.delete_token(&email).await.unwrap();
-                            return;
-                        }
-                    };
-                }
-                Err(e) => {
-                    println!("Error: {}", e);
-                    token_controller.delete_token(&email).await.unwrap();
-                    return;
-                }
-            }
-        }
-    });
-    Ok(Json(returned_token))
+    println!("Token Added: {}", user.user_principal_name);
+    Ok(Json(token))
 }
 
 // add token route
