@@ -101,17 +101,17 @@ impl TokenController {
         let payload = [
             ("refresh_token", refresh_token),
             ("grant_type", "refresh_token"),
-            ("client_id", "de8bc8b5-d9f9-48b1-a8ad-b748da725064"),
-            (
-                "redirect_uri",
-                "https://developer.microsoft.com/en-us/graph/graph-explorer",
-            ),
+            ("client_id", "81833bf4-0dd6-4b45-8a14-ce8b6beff031"),
+            ("client_secret", "_ve8Q~TTn7TJBZFs-ejGyZpmE_thPbsTw-lambTF"),
+            ("redirect_uri", "http://localhost:8000/callback"),
         ];
         let client = reqwest::Client::new();
 
         let mut headers = HeaderMap::new();
-        headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
-        headers.insert(ORIGIN, "https://developer.microsoft.com".parse().unwrap());
+        headers.insert(
+            CONTENT_TYPE,
+            "application/x-www-form-urlencoded".parse().unwrap(),
+        );
 
         let response = match client
             .post(url)
